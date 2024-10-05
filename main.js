@@ -5,7 +5,7 @@ let getOutput = document.getElementById('output-text');
 window.addEventListener('load', function () {
      let storedItems = JSON.parse(localStorage.getItem('items')) || [];
      storedItems.forEach(function (item) {
-          addItemToList(item);
+          addItemToList(item.text, item.completed);
      });
 });
 
@@ -31,19 +31,24 @@ getButton.addEventListener('click', function () {
      } else {
           let text = getInput.value;
 
-          addItemToList(text);
+          addItemToList(text, false);
 
           let storedItems = JSON.parse(localStorage.getItem('items')) || [];
-          storedItems.push(text);
+          storedItems.push({ text: text, completed: false });
           localStorage.setItem('items', JSON.stringify(storedItems));
 
           getInput.value = '';
      }
 });
 
-function addItemToList(text) {
+function addItemToList(text, completed) {
      let li = document.createElement('li');
      li.textContent = text;
+
+     if (completed) {
+          li.style.textDecoration = 'line-through';
+          li.style.backgroundColor = "#333333e1";
+     }
 
      let btnDelete = document.createElement('button');
      btnDelete.innerHTML = 'Delete';
@@ -57,19 +62,24 @@ function addItemToList(text) {
           getOutput.removeChild(li);
 
           let storedItems = JSON.parse(localStorage.getItem('items')) || [];
-          let updatedItems = storedItems.filter(item => item !== text);
+          let updatedItems = storedItems.filter(item => item.text !== text);
           localStorage.setItem('items', JSON.stringify(updatedItems));
      });
 
      li.addEventListener('click', function () {
-          li.style.textDecoration = 'line-through';
-          li.style.cursor = 'pointer';
-          li.style.backgroundColor = "#333333e1";
-     });
+          let storedItems = JSON.parse(localStorage.getItem('items')) || [];
+          let itemIndex = storedItems.findIndex(item => item.text === text);
 
-     li.addEventListener('dblclick', function () {
-          li.style.textDecoration = 'none';
-          li.style.cursor = 'pointer';
-          li.style.backgroundColor = "#333";
+          if (li.style.textDecoration === 'line-through') {
+               li.style.textDecoration = 'none';
+               li.style.backgroundColor = "#333";
+               storedItems[itemIndex].completed = false;
+          } else {
+               li.style.textDecoration = 'line-through';
+               li.style.backgroundColor = "#333333e1";
+               storedItems[itemIndex].completed = true;
+          }
+
+          localStorage.setItem('items', JSON.stringify(storedItems));
      });
 }
