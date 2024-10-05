@@ -2,6 +2,13 @@ let getInput = document.getElementById('input-text');
 let getButton = document.getElementById('add-text');
 let getOutput = document.getElementById('output-text');
 
+window.addEventListener('load', function () {
+     let storedItems = JSON.parse(localStorage.getItem('items')) || [];
+     storedItems.forEach(function (item) {
+          addItemToList(item);
+     });
+});
+
 getInput.addEventListener('input', function () {
      getButton.disabled = false;
      getButton.style.cursor = "pointer";
@@ -23,33 +30,46 @@ getButton.addEventListener('click', function () {
           getButton.style.cursor = "not-allowed";
      } else {
           let text = getInput.value;
-          let li = document.createElement('li');
-          li.textContent = text;
 
-          let btnDelete = document.createElement('button');
-          btnDelete.innerHTML = 'Delete';
-          btnDelete.style.marginLeft = '10px';
-          btnDelete.style.cursor = 'pointer';
+          addItemToList(text);
 
-          li.appendChild(btnDelete);
-          getOutput.appendChild(li);
-
-          btnDelete.addEventListener('click', function () {
-               getOutput.removeChild(li);
-          });
-
-          li.addEventListener('click', function () {
-               li.style.textDecoration = 'line-through';
-               li.style.cursor = 'pointer';
-               li.style.backgroundColor = "#333333e1";
-          });
-
-          li.addEventListener('dblclick', function () {
-               li.style.textDecoration = 'none';
-               li.style.cursor = 'pointer';
-               li.style.backgroundColor = "#333";
-          });
+          let storedItems = JSON.parse(localStorage.getItem('items')) || [];
+          storedItems.push(text);
+          localStorage.setItem('items', JSON.stringify(storedItems));
 
           getInput.value = '';
      }
 });
+
+function addItemToList(text) {
+     let li = document.createElement('li');
+     li.textContent = text;
+
+     let btnDelete = document.createElement('button');
+     btnDelete.innerHTML = 'Delete';
+     btnDelete.style.marginLeft = '10px';
+     btnDelete.style.cursor = 'pointer';
+
+     li.appendChild(btnDelete);
+     getOutput.appendChild(li);
+
+     btnDelete.addEventListener('click', function () {
+          getOutput.removeChild(li);
+
+          let storedItems = JSON.parse(localStorage.getItem('items')) || [];
+          let updatedItems = storedItems.filter(item => item !== text);
+          localStorage.setItem('items', JSON.stringify(updatedItems));
+     });
+
+     li.addEventListener('click', function () {
+          li.style.textDecoration = 'line-through';
+          li.style.cursor = 'pointer';
+          li.style.backgroundColor = "#333333e1";
+     });
+
+     li.addEventListener('dblclick', function () {
+          li.style.textDecoration = 'none';
+          li.style.cursor = 'pointer';
+          li.style.backgroundColor = "#333";
+     });
+}
